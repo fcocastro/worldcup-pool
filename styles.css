@@ -159,15 +159,19 @@ input {
 .node-trophy { position: absolute; top: 2px; left: 4px; font-size: .8rem; pointer-events: none; }
 .bnode.champion { box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255,209,102,.4); }
 
-/* Match footer: date / status + family pick split */
+/* Match footer: date / status, then family pick split with flags */
 .bmeta {
-  display: flex; justify-content: space-between; align-items: center; gap: 6px;
-  padding: 3px 8px; border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 4px 8px; border-top: 1px solid var(--line);
   font-size: .62rem; color: var(--muted);
 }
 .bmeta-when.m-live { color: #ff6b6b; font-weight: 700; }
 .bmeta-when.m-final { color: var(--muted); }
-.bmeta-picks { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bmeta-picks { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.bmeta-pl { color: var(--muted); }
+.bmeta-picks .flag { width: 15px; height: 10px; }
+.bmeta-num { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+.bmeta-dash { color: var(--muted); }
 
 /* Today's games strip */
 .today-bar {

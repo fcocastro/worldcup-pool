@@ -1047,11 +1047,17 @@
     const pc = a && b ? pickCounts(id) : { total: 0 };
     if (!m.label && pc.total === 0) return null; // nothing to show — keep it clean
     const meta = el("div", "bmeta");
-    meta.appendChild(el("span", "bmeta-when " + m.cls, m.label || ""));
+    if (m.label) meta.appendChild(el("span", "bmeta-when " + m.cls, m.label));
     if (pc.total > 0) {
-      const right = el("span", "bmeta-picks", `👥 ${pc.a}–${pc.b}`);
-      right.title = `Family picks (not the score) — ${a}: ${pc.a} · ${b}: ${pc.b}`;
-      meta.appendChild(right);
+      const row = el("div", "bmeta-picks");
+      row.title = `Family picks (not the score) — ${a}: ${pc.a} · ${b}: ${pc.b}`;
+      row.appendChild(el("span", "bmeta-pl", "Family picks"));
+      const fa = flagEl(a); if (fa) row.appendChild(fa);
+      row.appendChild(el("span", "bmeta-num", String(pc.a)));
+      row.appendChild(el("span", "bmeta-dash", "–"));
+      row.appendChild(el("span", "bmeta-num", String(pc.b)));
+      const fb = flagEl(b); if (fb) row.appendChild(fb);
+      meta.appendChild(row);
     }
     return meta;
   }
