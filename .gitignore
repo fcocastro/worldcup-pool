@@ -1,0 +1,10 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+*.swp
+
+# never commit real secrets (the service_role key goes in GitHub Actions secrets, not here)
+.env

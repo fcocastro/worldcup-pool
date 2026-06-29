@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>World Cup 2026 Family Pool</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <h1 id="pool-title">World Cup 2026 Family Pool</h1>
+      <span id="current-player" class="current-player" hidden></span>
+    </div>
+    <nav id="tabs">
+      <button class="tab active" data-tab="picks">Make Picks</button>
+      <button class="tab" data-tab="standings">Standings</button>
+      <button class="tab" data-tab="bracket">Bracket</button>
+      <button class="tab" data-tab="admin">Admin</button>
+    </nav>
+    <div class="point-strip" title="Points per correct winner each round. Tiebreaker: total goals in both semifinals + the final.">
+      Scoring · R32 <b>2</b> · R16 <b>4</b> · QF <b>8</b> · SF <b>16</b> · Champion <b>32</b> · max <b>160</b>
+    </div>
+  </header>
+
+  <main>
+    <div id="status" class="status" hidden></div>
+
+    <!-- MAKE PICKS -->
+    <section id="tab-picks" class="tab-panel active">
+      <div class="card who-card">
+        <h2>Who are you?</h2>
+        <div class="row">
+          <label>Name
+            <select id="player-name">
+              <option value="">— select your name —</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint">Pick your name from the list, choose your winners below, and hit Submit — you'll be asked to confirm. You can change a pick any time until the commissioner locks that match. Not in the list? Ask the commissioner to add you.</p>
+      </div>
+
+      <div id="picks-rounds"></div>
+
+      <div class="card tiebreaker-card">
+        <h2>Tiebreaker</h2>
+        <p class="hint">Total goals scored across both <strong>semifinals + the final</strong> (used only if there's a tie going into the final).</p>
+        <label>Your guess: <input id="tiebreaker-input" type="number" min="0" step="1" placeholder="e.g. 9" /></label>
+        <button id="save-tiebreaker" class="btn">Save tiebreaker</button>
+        <span id="tiebreaker-lock" class="tb-lock" hidden></span>
+      </div>
+    </section>
+
+    <!-- STANDINGS -->
+    <section id="tab-standings" class="tab-panel">
+      <div class="card">
+        <h2>Standings</h2>
+        <p class="hint">Points update automatically as results come in. Max possible: 160.</p>
+        <table id="standings-table" class="standings"><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- BRACKET -->
+    <section id="tab-bracket" class="tab-panel">
+      <div id="bracket-rounds"></div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="tab-admin" class="tab-panel">
+      <div class="card">
+        <h2>Admin — enter / override results</h2>
+        <p class="hint">Results normally auto-fetch from the API. Use this to fix or set a result manually. Requires the commissioner PIN.</p>
+        <label>Commissioner PIN <input id="admin-pin" type="password" autocomplete="off" /></label>
+        <button id="admin-unlock" class="btn">Unlock</button>
+        <div id="admin-matches" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="tooltip" hidden></div>
+
+  <!-- Supabase client (loaded from CDN; fine on GitHub Pages) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

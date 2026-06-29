@@ -1,0 +1,48 @@
+{
+  "poolName": "World Cup 2026 Family Pool",
+  "rounds": [
+    { "key": "r32",   "name": "Round of 32",   "points": 2  },
+    { "key": "r16",   "name": "Round of 16",   "points": 4  },
+    { "key": "qf",    "name": "Quarterfinals",  "points": 8  },
+    { "key": "sf",    "name": "Semifinals",     "points": 16 },
+    { "key": "final", "name": "Final",          "points": 32 }
+  ],
+  "_comment_kickoff": "kickoff is ISO 8601 (e.g. 2026-07-03T19:00:00Z). When set, a match's picks lock at kickoff. Leave null to lock only once a result is entered.",
+  "matches": {
+    "73": { "round": "r32", "a": { "team": "Canada" },        "b": { "team": "South Africa" }, "kickoff": null },
+    "74": { "round": "r32", "a": { "team": "Germany" },       "b": { "team": "Paraguay" },     "kickoff": null },
+    "75": { "round": "r32", "a": { "team": "Netherlands" },   "b": { "team": "Morocco" },      "kickoff": null },
+    "76": { "round": "r32", "a": { "team": "Brazil" },        "b": { "team": "Japan" },        "kickoff": null },
+    "77": { "round": "r32", "a": { "team": "France" },        "b": { "team": "Sweden" },       "kickoff": null },
+    "78": { "round": "r32", "a": { "team": "Ivory Coast" },   "b": { "team": "Norway" },       "kickoff": null },
+    "79": { "round": "r32", "a": { "team": "Mexico" },        "b": { "team": "Ecuador" },      "kickoff": null },
+    "80": { "round": "r32", "a": { "team": "England" },       "b": { "team": "DR Congo" },     "kickoff": null },
+    "81": { "round": "r32", "a": { "team": "United States" }, "b": { "team": "Bosnia and Herzegovina" }, "kickoff": null },
+    "82": { "round": "r32", "a": { "team": "Belgium" },       "b": { "team": "Senegal" },      "kickoff": null },
+    "83": { "round": "r32", "a": { "team": "Portugal" },      "b": { "team": "Croatia" },      "kickoff": null },
+    "84": { "round": "r32", "a": { "team": "Spain" },         "b": { "team": "Austria" },      "kickoff": null },
+    "85": { "round": "r32", "a": { "team": "Switzerland" },   "b": { "team": "Algeria" },      "kickoff": null },
+    "86": { "round": "r32", "a": { "team": "Argentina" },     "b": { "team": "Cape Verde" },   "kickoff": null },
+    "87": { "round": "r32", "a": { "team": "Colombia" },      "b": { "team": "Ghana" },        "kickoff": null },
+    "88": { "round": "r32", "a": { "team": "Australia" },     "b": { "team": "Egypt" },        "kickoff": null },
+
+    "89": { "round": "r16", "a": { "from": 74 }, "b": { "from": 77 }, "kickoff": null },
+    "90": { "round": "r16", "a": { "from": 75 }, "b": { "from": 73 }, "kickoff": null },
+    "91": { "round": "r16", "a": { "from": 76 }, "b": { "from": 78 }, "kickoff": null },
+    "92": { "round": "r16", "a": { "from": 79 }, "b": { "from": 80 }, "kickoff": null },
+    "93": { "round": "r16", "a": { "from": 83 }, "b": { "from": 84 }, "kickoff": null },
+    "94": { "round": "r16", "a": { "from": 81 }, "b": { "from": 82 }, "kickoff": null },
+    "95": { "round": "r16", "a": { "from": 86 }, "b": { "from": 88 }, "kickoff": null },
+    "96": { "round": "r16", "a": { "from": 85 }, "b": { "from": 87 }, "kickoff": null },
+
+    "97":  { "round": "qf", "a": { "from": 89 }, "b": { "from": 90 }, "kickoff": null },
+    "98":  { "round": "qf", "a": { "from": 93 }, "b": { "from": 94 }, "kickoff": null },
+    "99":  { "round": "qf", "a": { "from": 91 }, "b": { "from": 92 }, "kickoff": null },
+    "100": { "round": "qf", "a": { "from": 95 }, "b": { "from": 96 }, "kickoff": null },
+
+    "101": { "round": "sf", "a": { "from": 97 }, "b": { "from": 98 },  "kickoff": null },
+    "102": { "round": "sf", "a": { "from": 99 }, "b": { "from": 100 }, "kickoff": null },
+
+    "103": { "round": "final", "a": { "from": 101 }, "b": { "from": 102 }, "kickoff": null }
+  }
+}

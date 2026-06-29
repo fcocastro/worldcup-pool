@@ -1,0 +1,23 @@
+name: Fetch World Cup results
+
+# Runs on a schedule and on-demand. Pulls finished matches from football-data.org
+# and writes them into Supabase. Picks lock automatically once a result lands.
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # every 3 hours (UTC). Tighten during match days if you like.
+  workflow_dispatch: {}      # lets you run it manually from the Actions tab
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Fetch and upsert results
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node scripts/fetch-results.mjs
