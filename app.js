@@ -1049,8 +1049,8 @@
     const meta = el("div", "bmeta");
     meta.appendChild(el("span", "bmeta-when " + m.cls, m.label || ""));
     if (pc.total > 0) {
-      const right = el("span", "bmeta-picks", `${pc.a}–${pc.b}`);
-      right.title = `Family picks — ${a}: ${pc.a} · ${b}: ${pc.b}`;
+      const right = el("span", "bmeta-picks", `👥 ${pc.a}–${pc.b}`);
+      right.title = `Family picks (not the score) — ${a}: ${pc.a} · ${b}: ${pc.b}`;
       meta.appendChild(right);
     }
     return meta;
@@ -1077,10 +1077,23 @@
       .sort((x, y) => (x.utc_date < y.utc_date ? -1 : 1));
     bar.innerHTML = "";
     if (!items.length) { bar.hidden = true; return; }
+
+    // results you've entered override the API's last-known status (which can be
+    // a stale "in play" if the auto-fetch hasn't refreshed it).
+    const decidedByPair = {};
+    Object.keys(state.bracket.matches).forEach((id) => {
+      const r = state.results[id];
+      if (r && r.winner) {
+        const { a, b } = teamsOf(id);
+        if (a && b) decidedByPair[pairKey(a, b)] = true;
+      }
+    });
+
     bar.appendChild(el("span", "today-label", "Today"));
     items.forEach((g) => {
-      const live = g.status === "IN_PLAY" || g.status === "PAUSED";
-      const done = g.status === "FINISHED";
+      const decided = decidedByPair[pairKey(g.home, g.away)];
+      const live = !decided && (g.status === "IN_PLAY" || g.status === "PAUSED");
+      const done = decided || g.status === "FINISHED";
       const chip = el("span", "today-chip" + (live ? " live" : ""));
       const score = (g.home_score != null && g.away_score != null) ? ` ${g.home_score}–${g.away_score}` : "";
       const when = live ? "LIVE" : done ? "FT" : fmtTime(g.utc_date);
