@@ -1048,6 +1048,24 @@
     }
   }
 
+  // Show/hide the global "Exit commissioner mode" button.
+  function updateCommishUI() {
+    const b = $("#exit-commish");
+    if (b) b.hidden = !state.adminUnlocked;
+  }
+
+  function exitCommish() {
+    state.adminUnlocked = false;
+    $("#admin-pin").value = "";
+    const am = $("#admin-matches");
+    if (am) { am.hidden = true; am.innerHTML = ""; }
+    state.pending = {};
+    updateCommishUI();
+    renderPicks();
+    updateCurrentPlayer();
+    toast("Exited commissioner mode.", "ok");
+  }
+
   function setupActions() {
     $("#player-name").addEventListener("change", () => { state.pending = {}; renderPicks(); updateCurrentPlayer(); });
     $("#player-name").addEventListener("blur", () => { renderPicks(); updateCurrentPlayer(); });
@@ -1058,12 +1076,15 @@
         state.adminUnlocked = true;
         renderAdmin();
         renderPicks();           // reflect commissioner mode on the picks tab
+        updateCommishUI();
         updateCurrentPlayer();
-        toast("Admin unlocked — you can now edit any player's picks on the Make Picks tab.", "ok");
+        toast("Commissioner mode on — you can edit any player's picks on the Make Picks tab.", "ok");
       } else {
         toast("Wrong commissioner PIN.", "error");
       }
     };
+    $("#exit-commish").onclick = exitCommish;
+    updateCommishUI();
     updateCurrentPlayer();
   }
 

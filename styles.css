@@ -26,6 +26,12 @@ header {
   border-bottom: 1px solid var(--line);
 }
 .header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.exit-commish {
+  background: #b3382f; color: #fff; border: none; border-radius: 999px;
+  padding: 5px 12px; font-size: .8rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.exit-commish:hover { filter: brightness(1.1); }
 h1 { font-size: 1.25rem; margin: 0 0 12px; }
 .header-top h1 { margin-bottom: 12px; }
 .current-player {

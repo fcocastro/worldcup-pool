@@ -10,13 +10,16 @@
   <header>
     <div class="header-top">
       <h1 id="pool-title">World Cup 2026 Family Pool</h1>
-      <span id="current-player" class="current-player" hidden></span>
+      <div class="header-right">
+        <button id="exit-commish" class="exit-commish" hidden>Exit commissioner mode</button>
+        <span id="current-player" class="current-player" hidden></span>
+      </div>
     </div>
     <nav id="tabs">
       <button class="tab active" data-tab="picks">Make Picks</button>
       <button class="tab" data-tab="standings">Standings</button>
       <button class="tab" data-tab="bracket">Bracket</button>
-      <button class="tab" data-tab="admin">Admin</button>
+      <button class="tab" data-tab="admin">Commissioner</button>
     </nav>
     <div class="point-strip" title="Points per correct winner each round. Tiebreaker: total goals in both semifinals + the final.">
       Scoring · R32 <b>2</b> · R16 <b>4</b> · QF <b>8</b> · SF <b>16</b> · Champion <b>32</b> · max <b>160</b>
@@ -68,7 +71,7 @@
     <!-- ADMIN -->
     <section id="tab-admin" class="tab-panel">
       <div class="card">
-        <h2>Admin — enter / override results</h2>
+        <h2>Commissioner — manage players, results &amp; locks</h2>
         <p class="hint">Results normally auto-fetch from the API. Use this to fix or set a result manually. Requires the commissioner PIN.</p>
         <label>Commissioner PIN <input id="admin-pin" type="password" autocomplete="off" /></label>
         <button id="admin-unlock" class="btn">Unlock</button>
