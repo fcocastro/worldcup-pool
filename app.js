@@ -297,7 +297,9 @@
     });
     if (ctx.locked) {
       node.classList.add("locked");
-      node.appendChild(el("span", "node-lock", "🔒 Locked"));
+      const lk = el("span", "node-lock", "🔒");
+      lk.title = "Locked — picks frozen";
+      node.appendChild(lk);
     }
     return node;
   }
