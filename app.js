@@ -27,6 +27,7 @@
     players: {},   // name -> { pin, tiebreaker }
     games: [],         // full WC match history (optional `games` table)
     gamesByTeam: {},   // normalized team -> [ {date, stage, opp, gf, ga} ]
+    gamesByPair: {},   // "teamA|teamB" -> game row (date/status lookup)
     order: {},         // round key -> match ids in top-to-bottom bracket order
     locks: {},         // match_id -> true when the commissioner has locked picks
     adminUnlocked: false
@@ -121,6 +122,7 @@
     renderBracket();
     renderPicks();
     renderStandings();
+    renderTodayBar();
     setupActions();
     setupTooltip();
   }
@@ -295,6 +297,8 @@
       if (interactive) row.onclick = () => selectPick(id, team);
       node.appendChild(row);
     });
+    const mt = nodeMeta(id);
+    if (mt) node.appendChild(mt);
     if (ctx.locked) {
       node.classList.add("locked");
       const lk = el("span", "node-lock", "🔒");
@@ -516,10 +520,12 @@
   function renderStandings() {
     const totals = computeScores();
     const actualTB = actualTiebreaker();
+    const actualChamp = state.results["103"] ? state.results["103"].winner : null;
     const rows = Object.keys(totals).map((name) => ({
       name,
       pts: totals[name],
-      tb: state.players[name] ? state.players[name].tiebreaker : null
+      tb: state.players[name] ? state.players[name].tiebreaker : null,
+      champ: state.picks[name] ? state.picks[name]["103"] || null : null
     }));
     rows.sort((x, y) => {
       if (y.pts !== x.pts) return y.pts - x.pts;
@@ -529,25 +535,55 @@
       return x.name.localeCompare(y.name);
     });
 
+    const remaining = remainingPoints();
+    const leaderPts = rows.length ? rows[0].pts : 0;
+
     const tbody = $("#standings-table").querySelector("tbody");
     tbody.innerHTML = "";
     const head = document.createElement("tr");
-    head.innerHTML = "<th class='rank'>#</th><th>Player</th><th>Tiebreaker</th><th class='pts'>Points</th>";
+    head.innerHTML =
+      "<th class='rank'>#</th><th>Player</th><th>Champion</th>" +
+      "<th class='pts'>TB</th><th class='pts'>Pts</th><th class='pts'>Max</th>";
     tbody.appendChild(head);
 
     if (!rows.length) {
       const tr = document.createElement("tr");
-      tr.innerHTML = "<td colspan='4' class='hint'>No players yet. Make some picks!</td>";
+      tr.innerHTML = "<td colspan='6' class='hint'>No players yet. Make some picks!</td>";
       tbody.appendChild(tr);
       return;
     }
+
+    const td = (cls, text) => { const c = document.createElement("td"); if (cls) c.className = cls; if (text != null) c.textContent = text; return c; };
+
     rows.forEach((r, i) => {
       const tr = document.createElement("tr");
-      if (i === 0 && r.pts > 0) tr.className = "leader";
-      const tbTxt = r.tb == null ? "—" : (actualTB != null ? `${r.tb} (Δ${Math.abs(r.tb - actualTB)})` : r.tb);
-      tr.innerHTML =
-        `<td class="rank">${i + 1}</td><td>${escapeHtml(r.name)}</td>` +
-        `<td class="tb">${tbTxt}</td><td class="pts">${r.pts}</td>`;
+      if (i === 0 && r.pts > 0) tr.classList.add("leader");
+      const maxPossible = r.pts + remaining;
+      if (maxPossible < leaderPts) { tr.classList.add("out"); tr.title = "Can't catch the leader"; }
+
+      tr.appendChild(td("rank", String(i + 1)));
+      tr.appendChild(td(null, r.name));
+
+      const champTd = document.createElement("td");
+      champTd.className = "champ";
+      if (r.champ) {
+        const f = flagEl(r.champ);
+        if (f) champTd.appendChild(f);
+        champTd.appendChild(document.createTextNode(" " + r.champ));
+        if (actualChamp) {
+          if (r.champ === actualChamp) champTd.appendChild(el("span", "trophy", " 🏆"));
+          else champTd.classList.add("champ-wrong");
+        }
+      } else {
+        champTd.textContent = "—";
+        champTd.classList.add("muted-cell");
+      }
+      tr.appendChild(champTd);
+
+      const tbTxt = r.tb == null ? "—" : (actualTB != null ? `${r.tb} (Δ${Math.abs(r.tb - actualTB)})` : String(r.tb));
+      tr.appendChild(td("tb", tbTxt));
+      tr.appendChild(td("pts", String(r.pts)));
+      tr.appendChild(td("pts max", String(maxPossible)));
       tbody.appendChild(tr);
     });
   }
@@ -569,6 +605,15 @@
       if (score != null) row.appendChild(el("span", "bscore", String(score)));
       node.appendChild(row);
     });
+    // champion gets a trophy once the final (match 103) is decided
+    if (id === "103" && res.winner) {
+      node.classList.add("champion");
+      const tr = el("span", "node-trophy", "🏆");
+      tr.title = `Champion: ${res.winner}`;
+      node.appendChild(tr);
+    }
+    const mt = nodeMeta(id);
+    if (mt) node.appendChild(mt);
     return node;
   }
 
@@ -941,6 +986,13 @@
     Object.keys(idx).forEach((k) =>
       idx[k].sort((x, y) => (x.date > y.date ? 1 : x.date < y.date ? -1 : 0)));
     state.gamesByTeam = idx;
+
+    // Lookup of every API match by its (unordered) team pair — gives us the
+    // date, kickoff time and status (LIVE/FINISHED/upcoming) for each game.
+    state.gamesByPair = {};
+    (state.games || []).forEach((row) => {
+      if (row.home && row.away) state.gamesByPair[pairKey(row.home, row.away)] = row;
+    });
   }
   function teamHistory(team) { return state.gamesByTeam[normTeam(team)] || []; }
 
@@ -948,6 +1000,99 @@
     if (!d) return "";
     const dt = new Date(d);
     return isNaN(dt) ? "" : dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  function fmtDateTime(d) {
+    if (!d) return "";
+    const dt = new Date(d);
+    if (isNaN(dt)) return "";
+    return dt.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+  function fmtTime(d) {
+    const dt = new Date(d);
+    return isNaN(dt) ? "" : dt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+  function dayKey(d) {
+    const dt = new Date(d);
+    return isNaN(dt) ? "" : dt.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" });
+  }
+  function pairKey(a, b) { return [normTeam(a), normTeam(b)].sort().join("|"); }
+
+  // Date / status line for a match: "Final", "● LIVE", or a kickoff date/time.
+  function matchMeta(id) {
+    const { a, b } = teamsOf(id);
+    const res = state.results[id];
+    const g = a && b ? state.gamesByPair[pairKey(a, b)] : null;
+    if (res && res.winner) return { label: "Final", cls: "m-final", g };
+    if (g && (g.status === "IN_PLAY" || g.status === "PAUSED")) return { label: "● LIVE", cls: "m-live", g };
+    if (g && g.utc_date) return { label: fmtDateTime(g.utc_date), cls: "m-when", g };
+    return { label: "", cls: "", g };
+  }
+
+  // How many players picked each side of a match.
+  function pickCounts(id) {
+    const { a, b } = teamsOf(id);
+    let ca = 0, cb = 0;
+    Object.keys(state.picks).forEach((p) => {
+      const pk = state.picks[p][id];
+      if (pk === a) ca++; else if (pk === b) cb++;
+    });
+    return { a: ca, b: cb, total: ca + cb };
+  }
+
+  // Subtle footer for a bracket/pick node: date-or-status on the left, the
+  // family pick split on the right.
+  function nodeMeta(id) {
+    const m = matchMeta(id);
+    const { a, b } = teamsOf(id);
+    const pc = a && b ? pickCounts(id) : { total: 0 };
+    if (!m.label && pc.total === 0) return null; // nothing to show — keep it clean
+    const meta = el("div", "bmeta");
+    meta.appendChild(el("span", "bmeta-when " + m.cls, m.label || ""));
+    if (pc.total > 0) {
+      const right = el("span", "bmeta-picks", `${pc.a}–${pc.b}`);
+      right.title = `Family picks — ${a}: ${pc.a} · ${b}: ${pc.b}`;
+      meta.appendChild(right);
+    }
+    return meta;
+  }
+
+  // Points still available to win (rounds with no result yet). Uniform across
+  // players, so each player's ceiling = their current points + this.
+  function remainingPoints() {
+    let rem = 0;
+    Object.keys(state.bracket.matches).forEach((id) => {
+      const res = state.results[id];
+      if (!(res && res.winner)) rem += state.roundsByKey[state.bracket.matches[id].round].points;
+    });
+    return rem;
+  }
+
+  // Strip of matches kicking off today (any stage), in local time.
+  function renderTodayBar() {
+    const bar = $("#today-bar");
+    if (!bar) return;
+    const today = dayKey(Date.now());
+    const items = (state.games || [])
+      .filter((g) => g.home && g.away && g.utc_date && dayKey(g.utc_date) === today)
+      .sort((x, y) => (x.utc_date < y.utc_date ? -1 : 1));
+    bar.innerHTML = "";
+    if (!items.length) { bar.hidden = true; return; }
+    bar.appendChild(el("span", "today-label", "Today"));
+    items.forEach((g) => {
+      const live = g.status === "IN_PLAY" || g.status === "PAUSED";
+      const done = g.status === "FINISHED";
+      const chip = el("span", "today-chip" + (live ? " live" : ""));
+      const score = (g.home_score != null && g.away_score != null) ? ` ${g.home_score}–${g.away_score}` : "";
+      const when = live ? "LIVE" : done ? "FT" : fmtTime(g.utc_date);
+      const fa = flagEl(g.home), fb = flagEl(g.away);
+      if (fa) chip.appendChild(fa);
+      chip.appendChild(el("span", null, ` ${g.home}${score ? score : " v"} `));
+      if (fb) chip.appendChild(fb);
+      chip.appendChild(el("span", null, ` ${g.away}`));
+      chip.appendChild(el("span", "today-when", " · " + when));
+      bar.appendChild(chip);
+    });
+    bar.hidden = false;
   }
   function showTooltip(team, x, y) {
     const tip = $("#tooltip");

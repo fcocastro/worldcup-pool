@@ -156,6 +156,36 @@ input {
   position: absolute; top: 2px; right: 3px;
   font-size: .72rem; line-height: 1; pointer-events: none;
 }
+.node-trophy { position: absolute; top: 2px; left: 4px; font-size: .8rem; pointer-events: none; }
+.bnode.champion { box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255,209,102,.4); }
+
+/* Match footer: date / status + family pick split */
+.bmeta {
+  display: flex; justify-content: space-between; align-items: center; gap: 6px;
+  padding: 3px 8px; border-top: 1px solid var(--line);
+  font-size: .62rem; color: var(--muted);
+}
+.bmeta-when.m-live { color: #ff6b6b; font-weight: 700; }
+.bmeta-when.m-final { color: var(--muted); }
+.bmeta-picks { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Today's games strip */
+.today-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+  overflow-x: auto; padding: 8px 2px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.today-bar::-webkit-scrollbar { display: none; }
+.today-label { color: var(--gold); font-weight: 700; font-size: .8rem; flex: none; text-transform: uppercase; letter-spacing: .04em; }
+.today-chip {
+  display: inline-flex; align-items: center; gap: 2px; flex: none;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
+  padding: 4px 10px; font-size: .8rem; white-space: nowrap;
+}
+.today-chip.live { border-color: #ff6b6b; }
+.today-when { color: var(--muted); }
+.today-chip.live .today-when { color: #ff6b6b; font-weight: 700; }
+.today-chip .flag { width: 18px; height: 12px; }
 .brow {
   display: flex; align-items: center; gap: 8px; padding: 7px 9px;
   font-size: .85rem; border-bottom: 1px solid var(--line);
@@ -214,6 +244,15 @@ table.standings { width: 100%; border-collapse: collapse; }
 table.standings td, table.standings th { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; }
 table.standings td.pts { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 table.standings tr.leader td { color: var(--gold); }
+#tab-standings .card { overflow-x: auto; }
+table.standings td.champ { white-space: nowrap; font-size: .85rem; }
+table.standings td.champ .flag { width: 20px; height: 13px; vertical-align: -2px; margin-right: 2px; }
+table.standings td.champ.champ-wrong { opacity: .45; }
+table.standings td.champ .trophy { margin-left: 2px; }
+table.standings td.muted-cell { color: var(--muted); }
+table.standings td.max { color: var(--muted); }
+table.standings tr.out td { opacity: .5; }
+table.standings tr.out td.rank { text-decoration: line-through; }
 .rank { color: var(--muted); width: 28px; }
 .tb { color: var(--muted); font-size: .8rem; }
 
