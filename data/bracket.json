@@ -7,7 +7,7 @@
     { "key": "sf",    "name": "Semifinals",     "points": 16 },
     { "key": "final", "name": "Final",          "points": 32 }
   ],
-  "_comment_kickoff": "kickoff is ISO 8601 UTC (e.g. 2026-07-03T19:00:00Z). Shown on every match in local time and used by the Today strip.",
+  "_comment_kickoff": "kickoff is ISO 8601 UTC (e.g. 2026-07-03T19:00:00Z). Shown on every match in each viewer's local time and used by the Today strip. Source times were Pacific (UTC-7) converted to UTC.",
   "matches": {
     "73": { "round": "r32", "a": { "team": "Canada" },        "b": { "team": "South Africa" }, "kickoff": "2026-06-28T19:00:00Z" },
     "74": { "round": "r32", "a": { "team": "Germany" },       "b": { "team": "Paraguay" },     "kickoff": "2026-06-29T20:30:00Z" },
@@ -26,23 +26,23 @@
     "87": { "round": "r32", "a": { "team": "Colombia" },      "b": { "team": "Ghana" },        "kickoff": "2026-07-04T01:30:00Z" },
     "88": { "round": "r32", "a": { "team": "Australia" },     "b": { "team": "Egypt" },        "kickoff": "2026-07-03T18:00:00Z" },
 
-    "89": { "round": "r16", "a": { "from": 74 }, "b": { "from": 77 }, "kickoff": null },
-    "90": { "round": "r16", "a": { "from": 75 }, "b": { "from": 73 }, "kickoff": null },
-    "91": { "round": "r16", "a": { "from": 76 }, "b": { "from": 78 }, "kickoff": null },
-    "92": { "round": "r16", "a": { "from": 79 }, "b": { "from": 80 }, "kickoff": null },
-    "93": { "round": "r16", "a": { "from": 83 }, "b": { "from": 84 }, "kickoff": null },
-    "94": { "round": "r16", "a": { "from": 81 }, "b": { "from": 82 }, "kickoff": null },
-    "95": { "round": "r16", "a": { "from": 86 }, "b": { "from": 88 }, "kickoff": null },
-    "96": { "round": "r16", "a": { "from": 85 }, "b": { "from": 87 }, "kickoff": null },
+    "89": { "round": "r16", "a": { "from": 74 }, "b": { "from": 77 }, "kickoff": "2026-07-04T21:00:00Z" },
+    "90": { "round": "r16", "a": { "from": 75 }, "b": { "from": 73 }, "kickoff": "2026-07-04T17:00:00Z" },
+    "91": { "round": "r16", "a": { "from": 76 }, "b": { "from": 78 }, "kickoff": "2026-07-05T20:00:00Z" },
+    "92": { "round": "r16", "a": { "from": 79 }, "b": { "from": 80 }, "kickoff": "2026-07-06T00:00:00Z" },
+    "93": { "round": "r16", "a": { "from": 83 }, "b": { "from": 84 }, "kickoff": "2026-07-06T19:00:00Z" },
+    "94": { "round": "r16", "a": { "from": 81 }, "b": { "from": 82 }, "kickoff": "2026-07-07T00:00:00Z" },
+    "95": { "round": "r16", "a": { "from": 86 }, "b": { "from": 88 }, "kickoff": "2026-07-07T16:00:00Z" },
+    "96": { "round": "r16", "a": { "from": 85 }, "b": { "from": 87 }, "kickoff": "2026-07-07T20:00:00Z" },
 
-    "97":  { "round": "qf", "a": { "from": 89 }, "b": { "from": 90 }, "kickoff": null },
-    "98":  { "round": "qf", "a": { "from": 93 }, "b": { "from": 94 }, "kickoff": null },
-    "99":  { "round": "qf", "a": { "from": 91 }, "b": { "from": 92 }, "kickoff": null },
-    "100": { "round": "qf", "a": { "from": 95 }, "b": { "from": 96 }, "kickoff": null },
+    "97":  { "round": "qf", "a": { "from": 89 }, "b": { "from": 90 }, "kickoff": "2026-07-09T20:00:00Z" },
+    "98":  { "round": "qf", "a": { "from": 93 }, "b": { "from": 94 }, "kickoff": "2026-07-10T19:00:00Z" },
+    "99":  { "round": "qf", "a": { "from": 91 }, "b": { "from": 92 }, "kickoff": "2026-07-11T21:00:00Z" },
+    "100": { "round": "qf", "a": { "from": 95 }, "b": { "from": 96 }, "kickoff": "2026-07-12T01:00:00Z" },
 
-    "101": { "round": "sf", "a": { "from": 97 }, "b": { "from": 98 },  "kickoff": null },
-    "102": { "round": "sf", "a": { "from": 99 }, "b": { "from": 100 }, "kickoff": null },
+    "101": { "round": "sf", "a": { "from": 97 }, "b": { "from": 98 },  "kickoff": "2026-07-14T19:00:00Z" },
+    "102": { "round": "sf", "a": { "from": 99 }, "b": { "from": 100 }, "kickoff": "2026-07-15T19:00:00Z" },
 
-    "103": { "round": "final", "a": { "from": 101 }, "b": { "from": 102 }, "kickoff": null }
+    "103": { "round": "final", "a": { "from": 101 }, "b": { "from": 102 }, "kickoff": "2026-07-19T19:00:00Z" }
   }
 }
