@@ -125,6 +125,27 @@
     renderTodayBar();
     setupActions();
     setupTooltip();
+    startAutoRefresh();
+  }
+
+  // Quietly re-pull cloud data so everyone sees new results/standings without a
+  // manual reload. Skips while a pick is in progress or admin is unlocked, so it
+  // never disrupts someone mid-action.
+  async function autoRefresh() {
+    if (!sb || document.hidden) return;
+    if (state.adminUnlocked) return;
+    if (Object.keys(state.pending).length) return;
+    await refreshFromCloud();
+    renderBracket();
+    renderPicks();
+    renderStandings();
+    renderTodayBar();
+  }
+  function startAutoRefresh() {
+    if (!sb) return;
+    setInterval(autoRefresh, 120000); // every 2 minutes
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) autoRefresh(); });
+    window.addEventListener("focus", autoRefresh);
   }
 
   async function refreshFromCloud() {
