@@ -90,8 +90,6 @@ async function main() {
   const { matches = [] } = await api.json();
 
   // Store the full match history (all stages) for the hover-over-team feature.
-  // Include every match — even knockout games whose teams aren't decided yet —
-  // so the "Today" strip has their date/time before the bracket fills in.
   const gameRows = matches.map((m) => ({
     id: String(m.id),
     utc_date: m.utcDate || null,
@@ -101,7 +99,7 @@ async function main() {
     home_score: m.score?.fullTime?.home ?? null,
     away_score: m.score?.fullTime?.away ?? null,
     status: m.status || null
-  })).filter((g) => g.id);
+  })).filter((g) => g.home && g.away);
   if (gameRows.length) {
     await sbUpsert("games", gameRows);
     console.log(`Upserted ${gameRows.length} game(s) into history.`);

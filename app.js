@@ -1018,14 +1018,18 @@
   function pairKey(a, b) { return [normTeam(a), normTeam(b)].sort().join("|"); }
 
   // Date / status line for a match: "Final", "● LIVE", or a kickoff date/time.
+  // The date comes from bracket.json's `kickoff` (set for every match), so it
+  // shows even before the teams are known. Live status (optional) comes from
+  // the API games table when we can match it by team pair.
   function matchMeta(id) {
-    const { a, b } = teamsOf(id);
     const res = state.results[id];
+    if (res && res.winner) return { label: "Final", cls: "m-final" };
+    const { a, b } = teamsOf(id);
     const g = a && b ? state.gamesByPair[pairKey(a, b)] : null;
-    if (res && res.winner) return { label: "Final", cls: "m-final", g };
-    if (g && (g.status === "IN_PLAY" || g.status === "PAUSED")) return { label: "● LIVE", cls: "m-live", g };
-    if (g && g.utc_date) return { label: fmtDateTime(g.utc_date), cls: "m-when", g };
-    return { label: "", cls: "", g };
+    if (g && (g.status === "IN_PLAY" || g.status === "PAUSED")) return { label: "● LIVE", cls: "m-live" };
+    const k = state.bracket.matches[id].kickoff;
+    if (k) return { label: fmtDateTime(k), cls: "m-when" };
+    return { label: "", cls: "" };
   }
 
   // How many players picked each side of a match.
@@ -1073,44 +1077,37 @@
     return rem;
   }
 
-  // Strip of matches kicking off today (any stage), in local time. Includes
-  // knockout games whose teams aren't decided yet (shown by round + time).
+  // Strip of matches kicking off today, from bracket.json kickoff times. Works
+  // for every round — shows TBD teams until they're decided.
   function renderTodayBar() {
     const bar = $("#today-bar");
     if (!bar) return;
     const today = dayKey(Date.now());
-    const items = (state.games || [])
-      .filter((g) => g.utc_date && dayKey(g.utc_date) === today)
-      .sort((x, y) => (x.utc_date < y.utc_date ? -1 : 1));
+    const ids = Object.keys(state.bracket.matches)
+      .filter((id) => {
+        const k = state.bracket.matches[id].kickoff;
+        return k && dayKey(k) === today;
+      })
+      .sort((x, y) => (state.bracket.matches[x].kickoff < state.bracket.matches[y].kickoff ? -1 : 1));
     bar.innerHTML = "";
-    if (!items.length) { bar.hidden = true; return; }
-
-    // results you've entered override the API's last-known status (which can be
-    // a stale "in play" if the auto-fetch hasn't refreshed it).
-    const decidedByPair = {};
-    Object.keys(state.bracket.matches).forEach((id) => {
-      const r = state.results[id];
-      if (r && r.winner) {
-        const { a, b } = teamsOf(id);
-        if (a && b) decidedByPair[pairKey(a, b)] = true;
-      }
-    });
+    if (!ids.length) { bar.hidden = true; return; }
 
     bar.appendChild(el("span", "today-label", "Today"));
-    items.forEach((g) => {
-      const home = g.home || "TBD", away = g.away || "TBD";
-      const bothKnown = !!(g.home && g.away);
-      const decided = bothKnown && decidedByPair[pairKey(g.home, g.away)];
-      const live = !decided && (g.status === "IN_PLAY" || g.status === "PAUSED");
-      const done = decided || g.status === "FINISHED";
+    ids.forEach((id) => {
+      const m = state.bracket.matches[id];
+      const { a, b } = teamsOf(id);
+      const home = a || "TBD", away = b || "TBD";
+      const res = state.results[id];
+      const g = a && b ? state.gamesByPair[pairKey(a, b)] : null;
+      const live = !(res && res.winner) && g && (g.status === "IN_PLAY" || g.status === "PAUSED");
       const chip = el("span", "today-chip" + (live ? " live" : ""));
-      chip.appendChild(el("span", "today-stage", STAGE_LABEL[g.stage] || g.stage || ""));
-      const score = (g.home_score != null && g.away_score != null) ? `${g.home_score}–${g.away_score}` : "";
+      chip.appendChild(el("span", "today-stage", state.roundsByKey[m.round].name));
       const fa = flagEl(home); if (fa) chip.appendChild(fa);
+      const score = (res && res.score_a != null && res.score_b != null) ? `${res.score_a}–${res.score_b}` : "";
       chip.appendChild(el("span", null, ` ${home} ${score || "v"} `));
       const fb = flagEl(away); if (fb) chip.appendChild(fb);
       chip.appendChild(el("span", null, ` ${away}`));
-      const when = live ? "LIVE" : done ? "FT" : fmtTime(g.utc_date);
+      const when = (res && res.winner) ? "FT" : live ? "LIVE" : fmtTime(m.kickoff);
       chip.appendChild(el("span", "today-when", " · " + when));
       bar.appendChild(chip);
     });
