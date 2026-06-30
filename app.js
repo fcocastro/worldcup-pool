@@ -520,12 +520,10 @@
   function renderStandings() {
     const totals = computeScores();
     const actualTB = actualTiebreaker();
-    const actualChamp = state.results["103"] ? state.results["103"].winner : null;
     const rows = Object.keys(totals).map((name) => ({
       name,
       pts: totals[name],
-      tb: state.players[name] ? state.players[name].tiebreaker : null,
-      champ: state.picks[name] ? state.picks[name]["103"] || null : null
+      tb: state.players[name] ? state.players[name].tiebreaker : null
     }));
     rows.sort((x, y) => {
       if (y.pts !== x.pts) return y.pts - x.pts;
@@ -542,13 +540,13 @@
     tbody.innerHTML = "";
     const head = document.createElement("tr");
     head.innerHTML =
-      "<th class='rank'>#</th><th>Player</th><th>Champion</th>" +
+      "<th class='rank'>#</th><th>Player</th>" +
       "<th class='pts'>TB</th><th class='pts'>Pts</th><th class='pts'>Max</th>";
     tbody.appendChild(head);
 
     if (!rows.length) {
       const tr = document.createElement("tr");
-      tr.innerHTML = "<td colspan='6' class='hint'>No players yet. Make some picks!</td>";
+      tr.innerHTML = "<td colspan='5' class='hint'>No players yet. Make some picks!</td>";
       tbody.appendChild(tr);
       return;
     }
@@ -563,22 +561,6 @@
 
       tr.appendChild(td("rank", String(i + 1)));
       tr.appendChild(td(null, r.name));
-
-      const champTd = document.createElement("td");
-      champTd.className = "champ";
-      if (r.champ) {
-        const f = flagEl(r.champ);
-        if (f) champTd.appendChild(f);
-        champTd.appendChild(document.createTextNode(" " + r.champ));
-        if (actualChamp) {
-          if (r.champ === actualChamp) champTd.appendChild(el("span", "trophy", " 🏆"));
-          else champTd.classList.add("champ-wrong");
-        }
-      } else {
-        champTd.textContent = "—";
-        champTd.classList.add("muted-cell");
-      }
-      tr.appendChild(champTd);
 
       const tbTxt = r.tb == null ? "—" : (actualTB != null ? `${r.tb} (Δ${Math.abs(r.tb - actualTB)})` : String(r.tb));
       tr.appendChild(td("tb", tbTxt));

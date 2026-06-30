@@ -250,11 +250,6 @@ table.standings td, table.standings th { padding: 10px 8px; border-bottom: 1px s
 table.standings td.pts { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 table.standings tr.leader td { color: var(--gold); }
 #tab-standings .card { overflow-x: auto; }
-table.standings td.champ { white-space: nowrap; font-size: .85rem; }
-table.standings td.champ .flag { width: 20px; height: 13px; vertical-align: -2px; margin-right: 2px; }
-table.standings td.champ.champ-wrong { opacity: .45; }
-table.standings td.champ .trophy { margin-left: 2px; }
-table.standings td.muted-cell { color: var(--muted); }
 table.standings td.max { color: var(--muted); }
 table.standings tr.out td { opacity: .5; }
 table.standings tr.out td.rank { text-decoration: line-through; }
