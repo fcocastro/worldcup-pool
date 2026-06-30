@@ -576,9 +576,12 @@
 
     rows.forEach((r, i) => {
       const tr = document.createElement("tr");
+      tr.classList.add("clickable");
+      tr.title = "View " + r.name + "'s picks";
+      tr.onclick = () => openPlayerDetail(r.name);
       if (i === 0 && r.pts > 0) tr.classList.add("leader");
       const maxPossible = r.pts + remaining;
-      if (maxPossible < leaderPts) { tr.classList.add("out"); tr.title = "Can't catch the leader"; }
+      if (maxPossible < leaderPts) { tr.classList.add("out"); }
 
       tr.appendChild(td("rank", String(i + 1)));
       tr.appendChild(td(null, r.name));
@@ -589,6 +592,94 @@
       tr.appendChild(td("pts max", String(maxPossible)));
       tbody.appendChild(tr);
     });
+  }
+
+  // ---- player detail overlay (tap a standings row) ----
+  function ordinal(n) {
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+  function closePlayerDetail() {
+    const o = document.querySelector(".overlay");
+    if (o) o.remove();
+    document.removeEventListener("keydown", escClosePlayer);
+  }
+  function escClosePlayer(e) { if (e.key === "Escape") closePlayerDetail(); }
+
+  function openPlayerDetail(name) {
+    closePlayerDetail();
+    const totals = computeScores();
+    const order = Object.keys(totals).sort((a, b) => totals[b] - totals[a] || a.localeCompare(b));
+    const rank = order.indexOf(name) + 1;
+    const pts = totals[name] || 0;
+    const max = pts + remainingPoints();
+    const myPicks = state.picks[name] || {};
+    const tb = state.players[name] ? state.players[name].tiebreaker : null;
+
+    const overlay = el("div", "overlay");
+    overlay.onclick = (e) => { if (e.target === overlay) closePlayerDetail(); };
+    const card = el("div", "pcard");
+
+    const head = el("div", "pcard-head");
+    const left = el("div");
+    left.appendChild(el("div", "who", "👤 " + name));
+    left.appendChild(el("div", "meta", `${ordinal(rank)} · ${pts} pts · max ${max}`));
+    head.appendChild(left);
+    const x = el("button", "x", "✕");
+    x.onclick = closePlayerDetail;
+    head.appendChild(x);
+    card.appendChild(head);
+
+    let anyPicks = false;
+    state.bracket.rounds.forEach((round) => {
+      const allIds = matchIdsByRound(round.key);
+      const ids = allIds.filter((id) => myPicks[id] != null);
+      if (!ids.length) return;
+      anyPicks = true;
+      const roundMax = round.points * allIds.length;
+      let earned = 0, decided = 0;
+      const chips = el("div", "pchips");
+      ids.forEach((id) => {
+        const pick = myPicks[id];
+        const res = state.results[id];
+        const chip = el("span", "pchip");
+        const f = flagEl(pick);
+        if (f) chip.appendChild(f);
+        chip.appendChild(el("span", null, pick));
+        if (res && res.winner) {
+          decided++;
+          if (res.winner === pick) { earned += round.points; chip.classList.add("right"); chip.appendChild(el("span", "mk", "✓")); }
+          else { chip.classList.add("wrong"); chip.appendChild(el("span", "mk", "✗")); }
+        } else {
+          chip.classList.add("pending");
+        }
+        chips.appendChild(chip);
+      });
+      const sec = el("div", "pround");
+      const h = el("h4");
+      h.appendChild(el("span", null, round.name));
+      h.appendChild(el("span", "rpts", decided ? `${earned} / ${roundMax} pts` : "not started"));
+      sec.appendChild(h);
+      sec.appendChild(chips);
+      card.appendChild(sec);
+    });
+
+    if (!anyPicks) {
+      const sec = el("div", "pround");
+      sec.appendChild(el("p", "hint", "No picks yet."));
+      card.appendChild(sec);
+    }
+
+    const tbSec = el("div", "pround");
+    const th = el("h4");
+    th.appendChild(el("span", null, "Tiebreaker"));
+    th.appendChild(el("span", "rpts", tb == null ? "no guess yet" : `guess: ${tb} goals`));
+    tbSec.appendChild(th);
+    card.appendChild(tbSec);
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+    document.addEventListener("keydown", escClosePlayer);
   }
 
   // ---- BRACKET tab — true left-to-right bracket with connector lines ----
