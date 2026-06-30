@@ -187,6 +187,7 @@ input {
   padding: 4px 10px; font-size: .8rem; white-space: nowrap;
 }
 .today-chip.live { border-color: #ff6b6b; }
+.today-stage { color: var(--gold); font-weight: 700; font-size: .68rem; margin-right: 4px; }
 .today-when { color: var(--muted); }
 .today-chip.live .today-when { color: #ff6b6b; font-weight: 700; }
 .today-chip .flag { width: 18px; height: 12px; }

@@ -1073,13 +1073,14 @@
     return rem;
   }
 
-  // Strip of matches kicking off today (any stage), in local time.
+  // Strip of matches kicking off today (any stage), in local time. Includes
+  // knockout games whose teams aren't decided yet (shown by round + time).
   function renderTodayBar() {
     const bar = $("#today-bar");
     if (!bar) return;
     const today = dayKey(Date.now());
     const items = (state.games || [])
-      .filter((g) => g.home && g.away && g.utc_date && dayKey(g.utc_date) === today)
+      .filter((g) => g.utc_date && dayKey(g.utc_date) === today)
       .sort((x, y) => (x.utc_date < y.utc_date ? -1 : 1));
     bar.innerHTML = "";
     if (!items.length) { bar.hidden = true; return; }
@@ -1097,17 +1098,19 @@
 
     bar.appendChild(el("span", "today-label", "Today"));
     items.forEach((g) => {
-      const decided = decidedByPair[pairKey(g.home, g.away)];
+      const home = g.home || "TBD", away = g.away || "TBD";
+      const bothKnown = !!(g.home && g.away);
+      const decided = bothKnown && decidedByPair[pairKey(g.home, g.away)];
       const live = !decided && (g.status === "IN_PLAY" || g.status === "PAUSED");
       const done = decided || g.status === "FINISHED";
       const chip = el("span", "today-chip" + (live ? " live" : ""));
-      const score = (g.home_score != null && g.away_score != null) ? ` ${g.home_score}–${g.away_score}` : "";
+      chip.appendChild(el("span", "today-stage", STAGE_LABEL[g.stage] || g.stage || ""));
+      const score = (g.home_score != null && g.away_score != null) ? `${g.home_score}–${g.away_score}` : "";
+      const fa = flagEl(home); if (fa) chip.appendChild(fa);
+      chip.appendChild(el("span", null, ` ${home} ${score || "v"} `));
+      const fb = flagEl(away); if (fb) chip.appendChild(fb);
+      chip.appendChild(el("span", null, ` ${away}`));
       const when = live ? "LIVE" : done ? "FT" : fmtTime(g.utc_date);
-      const fa = flagEl(g.home), fb = flagEl(g.away);
-      if (fa) chip.appendChild(fa);
-      chip.appendChild(el("span", null, ` ${g.home}${score ? score : " v"} `));
-      if (fb) chip.appendChild(fb);
-      chip.appendChild(el("span", null, ` ${g.away}`));
       chip.appendChild(el("span", "today-when", " · " + when));
       bar.appendChild(chip);
     });
